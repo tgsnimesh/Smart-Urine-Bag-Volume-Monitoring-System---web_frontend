@@ -1,23 +1,21 @@
 import React from "react";
 import { getAlertColor } from "../utils/alertColors";
-import "./AlertCard.css";
+import "./AlertCard.css"; // we'll create this file next
 
 const AlertCard = ({ alert }) => {
-  console.log(alert);
-
   const color = getAlertColor(alert.severity);
   const formattedTime = new Date(alert.createdAt).toLocaleString();
 
   return (
     <div className="alert-card" style={{ borderLeft: `6px solid ${color}` }}>
       <div className="alert-header">
-        {/* <span className="alert-type">{alert.type.replace(/_/g, " ")}</span> */}
+        <span className="alert-type">{alert.type.replace(/_/g, " ")}</span>
         <span
           className={`alert-status ${
             alert.status === "unread" ? "unread" : "read"
           }`}
         >
-          {alert.status}
+          {alert.status.toUpperCase()}
         </span>
       </div>
 
@@ -32,7 +30,7 @@ const AlertCard = ({ alert }) => {
         </div>
         <div>
           <strong>Severity:</strong>{" "}
-          <span className={`alert-severity ${alert.severity}`}>
+          <span className={`alert-severity ${alert.severity.toLowerCase()}`}>
             {alert.severity}
           </span>
         </div>

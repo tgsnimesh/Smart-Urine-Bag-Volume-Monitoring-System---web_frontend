@@ -7,8 +7,8 @@ import PatientTable from "../components/PatientTable";
 
 const Dashboard = () => {
   const [patients, setPatients] = useState([]);
-  const [alerts, setAlerts] = useState([]);
   const [devices, setDevices] = useState([]);
+  const [unreadCount, setUnreadCount] = useState(0);
 
   useEffect(() => {
     const patientsRef = ref(db, "patients");
@@ -17,21 +17,33 @@ const Dashboard = () => {
       setPatients(Object.values(data));
     });
 
-    const alertsRef = ref(db, "alerts");
-    onValue(alertsRef, (snapshot) => {
-      const data = snapshot.val() || {};
-      setAlerts(Object.values(data));
-    });
-
     const devicesRef = ref(db, "devices");
     onValue(devicesRef, (snapshot) => {
       const data = snapshot.val() || {};
       setDevices(Object.values(data));
     });
+
+    const alertsRef = ref(db, "alerts");
+
+    const unsubscribe = onValue(alertsRef, (snapshot) => {
+      const data = snapshot.val() || {};
+      let totalUnread = 0;
+
+      // Loop through each patient
+      Object.values(data).forEach((patientAlerts) => {
+        // Loop through each alert under this patient
+        Object.values(patientAlerts).forEach((alert) => {
+          if (alert.status === "unread") {
+            totalUnread++;
+          }
+        });
+      });
+
+      setUnreadCount(totalUnread);
+    });
   }, []);
 
   const totalPatients = patients.length;
-  const activeAlerts = alerts.filter((a) => a.status === "unread").length;
   const onlineDevices = devices.filter((p) => p.status === "online").length;
   const patientsAtRisk = patients.filter(
     (p) => p.urineData?.fillPercentage >= 75
@@ -45,7 +57,7 @@ const Dashboard = () => {
           <SummaryCard title="Total Patients" value={totalPatients} />
         </div>
         <div className="col-md-3">
-          <SummaryCard title="Active Alerts" value={activeAlerts} />
+          <SummaryCard title="Active Alerts" value={unreadCount} />
         </div>
         <div className="col-md-3">
           <SummaryCard title="Devices Online" value={onlineDevices} />

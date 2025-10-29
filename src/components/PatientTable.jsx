@@ -1,6 +1,7 @@
 // src/components/PatientTable.jsx
 import React from "react";
 import { Link } from "react-router-dom";
+import "./AlertCard.css";
 
 const PatientTable = ({ patients }) => {
   return (
@@ -13,7 +14,7 @@ const PatientTable = ({ patients }) => {
           <th>Current Volume (ml)</th>
           <th>Fill %</th>
           <th>Status</th>
-          <th>Alerts</th>
+          <th>Alert Level</th>
         </tr>
       </thead>
       <tbody>
@@ -27,7 +28,13 @@ const PatientTable = ({ patients }) => {
             <td>{p.urineData?.currentVolume_ml || "-"}</td>
             <td>{p.urineData?.fillPercentage || "-"}</td>
             <td>{p.urineData?.status || "-"}</td>
-            <td>{p.alerts?.length || 0}</td>
+            <td>
+              <span
+                className={`alert-severity ${p.urineData.alertLevel.toLowerCase()} text-center p-2`}
+              >
+                {p.urineData.alertLevel}
+              </span>
+            </td>
           </tr>
         ))}
       </tbody>

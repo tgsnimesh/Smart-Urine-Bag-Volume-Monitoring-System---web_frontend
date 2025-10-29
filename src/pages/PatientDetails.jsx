@@ -22,10 +22,10 @@ const PatientDetails = () => {
         const data = snapshot.val();
         setPatient(data);
 
-        const alertsRef = ref(db, `/alerts/patient_001`);
+        const alertsRef = ref(db, `/alerts/${patientId}`);
         onValue(alertsRef, (snapshot) => {
           if (snapshot.exists()) {
-            const alertsData = snapshot.val();
+            const alertsData = snapshot.val() || {};
             setAlerts(Object.values(alertsData));
           }
         });
