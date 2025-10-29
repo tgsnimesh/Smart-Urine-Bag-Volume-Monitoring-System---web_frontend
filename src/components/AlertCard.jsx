@@ -1,14 +1,45 @@
-// src/components/AlertCard.jsx
 import React from "react";
 import { getAlertColor } from "../utils/alertColors";
+import "./AlertCard.css";
 
 const AlertCard = ({ alert }) => {
-  const color = getAlertColor(alert.type);
+  console.log(alert);
+
+  const color = getAlertColor(alert.severity);
+  const formattedTime = new Date(alert.createdAt).toLocaleString();
 
   return (
-    <div className={`alert alert-${color} mb-2`} role="alert">
-      <strong>{alert.type}</strong> — {alert.message}
-      <div className="small text-muted">{alert.time}</div>
+    <div className="alert-card" style={{ borderLeft: `6px solid ${color}` }}>
+      <div className="alert-header">
+        {/* <span className="alert-type">{alert.type.replace(/_/g, " ")}</span> */}
+        <span
+          className={`alert-status ${
+            alert.status === "unread" ? "unread" : "read"
+          }`}
+        >
+          {alert.status}
+        </span>
+      </div>
+
+      <div className="alert-message">{alert.message}</div>
+
+      <div className="alert-details">
+        <div>
+          <strong>Device ID:</strong> {alert.deviceId}
+        </div>
+        <div>
+          <strong>Patient ID:</strong> {alert.patientId}
+        </div>
+        <div>
+          <strong>Severity:</strong>{" "}
+          <span className={`alert-severity ${alert.severity}`}>
+            {alert.severity}
+          </span>
+        </div>
+        <div>
+          <strong>Created At:</strong> {formattedTime}
+        </div>
+      </div>
     </div>
   );
 };

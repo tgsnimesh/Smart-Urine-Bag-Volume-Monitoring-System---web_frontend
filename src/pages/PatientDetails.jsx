@@ -12,7 +12,6 @@ const PatientDetails = () => {
   const patientId = id;
 
   const [patient, setPatient] = useState({});
-  const [flowData, setFlowData] = useState([]);
   const [alerts, setAlerts] = useState([]);
   const [deviceStatus, setDeviceStatus] = useState("Unknown");
 
@@ -23,11 +22,11 @@ const PatientDetails = () => {
         const data = snapshot.val();
         setPatient(data);
 
-        const alertsRef = ref(db, `devices/${patient.deviceId}`);
-        onValue(deviceRef, (snapshot) => {
+        const alertsRef = ref(db, `/alerts/patient_001`);
+        onValue(alertsRef, (snapshot) => {
           if (snapshot.exists()) {
             const alertsData = snapshot.val();
-            setAlerts(alertsData);
+            setAlerts(Object.values(alertsData));
           }
         });
       }
