@@ -8,7 +8,7 @@ import {
 } from "firebase/auth";
 import { ref, get } from "firebase/database";
 
-const AuthContext = createContext();
+export const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
@@ -23,7 +23,6 @@ export function AuthProvider({ children }) {
         console.log(currentUser.uid);
         const snapshot = await get(userRef);
         if (snapshot.exists()) {
-          console.log(snapshot.val().role);
           setRole(snapshot.val().role);
         } else {
           setRole("doctor"); // default role if not found
