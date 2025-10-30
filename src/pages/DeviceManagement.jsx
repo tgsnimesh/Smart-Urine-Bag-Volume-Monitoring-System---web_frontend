@@ -5,32 +5,35 @@ import "bootstrap/dist/css/bootstrap.min.css";
 
 export default function DeviceManagement() {
   const [devices, setDevices] = useState([]);
+  const [freePatients, setFreePatients] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [selectedDevice, setSelectedDevice] = useState(null);
 
   useEffect(() => {
     const devicesRef = ref(db, "devices");
-    const unsubscribe = onValue(
-      devicesRef,
-      (snapshot) => {
-        if (snapshot.exists()) {
-          const data = snapshot.val();
-          const deviceList = Object.keys(data).map((key) => ({
-            id: key,
-            ...data[key],
-          }));
-          setDevices(deviceList);
-        } else {
-          setDevices([]);
-        }
-        setLoading(false);
-      },
-      (err) => {
-        setError(err.message);
-        setLoading(false);
+    onValue(devicesRef, (snapshot) => {
+      if (snapshot.exists()) {
+        const data = snapshot.val();
+        const list = Object.keys(data).map((id) => ({ id, ...data[id] }));
+        setDevices(list);
       }
-    );
-    return () => unsubscribe();
+      setLoading(false);
+    });
+
+    const patientsRef = ref(db, "patients");
+    onValue(patientsRef, (snapshot) => {
+      if (snapshot.exists()) {
+        const data = snapshot.val();
+        const list = Object.keys(data).map((id) => ({ id, ...data[id] }));
+
+        // Filter: patient with no device assigned
+        const freePatients = list.filter(
+          (p) => p.deviceId == "-1" || !p.deviceId
+        );
+        setFreePatients(freePatients);
+        console.log(freePatients);
+      }
+    });
   }, []);
 
   const handleDeactivate = async (deviceId) => {
@@ -49,12 +52,10 @@ export default function DeviceManagement() {
       await update(ref(db, `devices/${deviceId}`), {
         status: "offline",
       });
-      alert("Device deactivated successfully.");
     }
   };
 
-  const handleReassign = async (deviceId) => {
-    const newPatientId = prompt("Enter new patient ID to reassign:");
+  const handleReassign = async (newPatientId, deviceId) => {
     if (newPatientId) {
       await update(ref(db, `devices/${deviceId}`), {
         patientId: newPatientId,
@@ -65,13 +66,10 @@ export default function DeviceManagement() {
       await update(ref(db, `devices/${deviceId}`), {
         status: "online",
       });
-      alert(`Device reassigned to ${newPatientId}`);
     }
   };
 
-  if (loading)
-    return <div className="text-center mt-5">Loading devices...</div>;
-  if (error) return <div className="text-danger text-center mt-5">{error}</div>;
+  if (loading) return <p className="text-center mt-5">Loading devices...</p>;
 
   return (
     <div className="container mt-5">
@@ -116,8 +114,8 @@ export default function DeviceManagement() {
                   <td>{device.lastSeen || "N/A"}</td>
                   <td>
                     <button
-                      className="btn btn-sm btn-warning me-2"
-                      onClick={() => handleReassign(device.id)}
+                      className="btn btn-sm btn-warning m-1"
+                      onClick={() => setSelectedDevice(device.id)}
                     >
                       Reassign
                     </button>
@@ -132,6 +130,66 @@ export default function DeviceManagement() {
               ))}
             </tbody>
           </table>
+
+          {/* 🧾 Patient Selection Modal */}
+          {selectedDevice && (
+            <div
+              className="modal show d-block"
+              tabIndex="-1"
+              style={{ background: "rgba(0,0,0,0.6)" }}
+            >
+              <div className="modal-dialog">
+                <div className="modal-content">
+                  <div className="modal-header">
+                    <h5 className="modal-title">
+                      Assign Device: {selectedDevice}
+                    </h5>
+                    <button
+                      className="btn-close"
+                      onClick={() => setSelectedDevice(null)}
+                    ></button>
+                  </div>
+
+                  <div className="modal-body">
+                    {freePatients.length === 0 ? (
+                      <p className="text-danger">No free patients available!</p>
+                    ) : (
+                      <ul className="list-group">
+                        {freePatients.map((p) => (
+                          <li
+                            key={p.id}
+                            className="list-group-item d-flex justify-content-between align-items-center"
+                          >
+                            <div>
+                              <strong>{p.id}</strong> - {p.name} <br />
+                              <small>Bed : {p.bedNo}</small>
+                            </div>
+                            <button
+                              className="btn btn-primary btn-sm"
+                              onClick={() =>
+                                handleReassign(p.id, selectedDevice)
+                              }
+                            >
+                              Select
+                            </button>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+
+                  <div className="modal-footer">
+                    <button
+                      className="btn btn-secondary"
+                      onClick={() => setSelectedDevice(null)}
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       )}
     </div>
