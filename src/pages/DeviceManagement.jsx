@@ -97,7 +97,9 @@ export default function DeviceManagement() {
               {devices.map((device) => (
                 <tr key={device.id}>
                   <td className="fw-semibold">{device.id}</td>
-                  <td>{device.patientId || "Unassigned"}</td>
+                  <td>
+                    {device.patientId !== -1 ? device.patientId : "Unassigned"}
+                  </td>
                   <td>{device.firmwareVersion || "N/A"}</td>
                   <td>{device.batteryPercent || "—"}</td>
                   <td>
@@ -113,12 +115,16 @@ export default function DeviceManagement() {
                   </td>
                   <td>{device.lastSeen || "N/A"}</td>
                   <td>
-                    <button
-                      className="btn btn-sm btn-warning m-1"
-                      onClick={() => setSelectedDevice(device.id)}
-                    >
-                      Reassign
-                    </button>
+                    {device.patientId == -1 ? (
+                      <button
+                        className="btn btn-sm btn-warning m-1"
+                        onClick={() => setSelectedDevice(device.id)}
+                      >
+                        Assign
+                      </button>
+                    ) : (
+                      ""
+                    )}
                     <button
                       className="btn btn-sm btn-danger"
                       onClick={() => handleDeactivate(device.id)}
@@ -131,7 +137,7 @@ export default function DeviceManagement() {
             </tbody>
           </table>
 
-          {/* 🧾 Patient Selection Modal */}
+          {/* Patient Selection Modal */}
           {selectedDevice && (
             <div
               className="modal show d-block"
@@ -164,6 +170,7 @@ export default function DeviceManagement() {
                               <strong>{p.id}</strong> - {p.name} <br />
                               <small>Bed : {p.bedNo}</small>
                             </div>
+
                             <button
                               className="btn btn-primary btn-sm"
                               onClick={() =>
