@@ -6,7 +6,11 @@ import DeviceManagement from "./pages/DeviceManagement";
 import UserManagement from "./pages/UserManagement";
 import NotAuthorized from "./pages/NotAuthorized";
 
-import { PrivateRoute, AdminRoute } from "./components/PrivateRoute";
+import {
+  PrivateRoute,
+  AdminRoute,
+  DoctorRoute,
+} from "./components/PrivateRoute";
 import { AuthProvider } from "./context/AuthContext";
 
 function App() {
@@ -14,9 +18,23 @@ function App() {
     <AuthProvider>
       <Router>
         <Routes>
-          <Route path="/" element={<Dashboard />} />
+          <Route
+            path="/"
+            element={
+              <PrivateRoute>
+                <Dashboard />
+              </PrivateRoute>
+            }
+          />
           <Route path="/login" element={<Login />} />
-          <Route path="/patient/:id" element={<PatientDetails />} />
+          <Route
+            path="/patient/:id"
+            element={
+              <PrivateRoute>
+                <PatientDetails />
+              </PrivateRoute>
+            }
+          />
           <Route
             path="/dashboard/"
             element={
@@ -25,7 +43,14 @@ function App() {
               </PrivateRoute>
             }
           />
-          <Route path="/device-management/" element={<DeviceManagement />} />
+          <Route
+            path="/device-management/"
+            element={
+              <DoctorRoute>
+                <DeviceManagement />
+              </DoctorRoute>
+            }
+          />
           <Route
             path="/user-management/"
             element={

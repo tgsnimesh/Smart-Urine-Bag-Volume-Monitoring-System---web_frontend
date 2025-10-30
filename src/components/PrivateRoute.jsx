@@ -23,3 +23,17 @@ export function AdminRoute({ children }) {
 
   return children;
 }
+
+export function DoctorRoute({ children }) {
+  const { user, role, login, logout, loading } = useContext(AuthContext);
+
+  console.log(user);
+
+  if (loading) return <p>Loading...</p>;
+
+  if (!user) return <Navigate to="/login" replace />;
+  if (role !== "admin" && role !== "doctor")
+    return <Navigate to="/not-authorized" replace />;
+
+  return children;
+}
