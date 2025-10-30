@@ -12,6 +12,7 @@ import {
   DoctorRoute,
 } from "./components/PrivateRoute";
 import { AuthProvider } from "./context/AuthContext";
+import Navbar from "./components/Navbar";
 
 function App() {
   return (

@@ -4,11 +4,19 @@ import { useAuth } from "../context/AuthContext";
 import { useContext } from "react";
 import { AuthContext } from "../context/AuthContext";
 
+import Navbar from "../components/Navbar";
+
 export function PrivateRoute({ children }) {
   const { user, role, login, logout, loading } = useAuth();
 
   if (loading) return null;
-  return user ? children : <Navigate to="/login" />;
+  if (!user) return <Navigate to="/login" replace />;
+  return (
+    <>
+      <Navbar />
+      <div className="container mt-4">{children}</div>
+    </>
+  );
 }
 
 export function AdminRoute({ children }) {
@@ -21,7 +29,12 @@ export function AdminRoute({ children }) {
   if (!user) return <Navigate to="/login" replace />;
   if (role !== "admin") return <Navigate to="/not-authorized" replace />;
 
-  return children;
+  return (
+    <>
+      <Navbar />
+      <div className="container mt-4">{children}</div>
+    </>
+  );
 }
 
 export function DoctorRoute({ children }) {
@@ -35,5 +48,10 @@ export function DoctorRoute({ children }) {
   if (role !== "admin" && role !== "doctor")
     return <Navigate to="/not-authorized" replace />;
 
-  return children;
+  return (
+    <>
+      <Navbar />
+      <div className="container mt-4">{children}</div>
+    </>
+  );
 }
